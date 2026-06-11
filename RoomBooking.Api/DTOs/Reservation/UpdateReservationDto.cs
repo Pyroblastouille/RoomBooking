@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RoomBooking.Api.DTOs.Reservations;
 
-public class CreateReservationDto
+public class UpdateReservationDto
 {
 
     [Required(ErrorMessage = "Title required")]

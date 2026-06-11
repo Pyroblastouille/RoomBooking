@@ -77,6 +77,53 @@ public class ReservationService : IReservationService
 
         return ServiceResult<ReservationDto>.Ok(MapToDto(reservation));
     }
+    public async Task<ServiceResult<ReservationDto>> UpdateAsync(int id,UpdateReservationDto dto)
+    {
+        //Case Start after End
+        if(dto.StartTime >= dto.EndTime)
+            return ServiceResult<ReservationDto>.Fail("conflict between start date and end date.");
+        //Case Reservation before now
+        if(dto.StartTime < DateTime.UtcNow)
+            return ServiceResult<ReservationDto>.Fail("conflict between start date and current date.");
+        //Case Room exists and active
+        var room = await _context.Rooms.FindAsync(dto.RoomId);
+        if(room is null)
+            return ServiceResult<ReservationDto>.Fail("Room does not exist.");
+        if(!room.IsActive)
+            return ServiceResult<ReservationDto>.Fail("Room is not active.");
+        //User exists
+        var user = await _context.Users.FindAsync(dto.UserId);
+        if(user is null)
+            return ServiceResult<ReservationDto>.Fail("User does not exist.");
+        
+        //Time Conflicts
+        var hasConflict = await _context.Reservations.AnyAsync(reservation => 
+            reservation.RoomId == dto.RoomId &&
+            dto.StartTime < reservation.EndTime &&
+            dto.EndTime > reservation.StartTime && 
+            id != reservation.Id);
+        if (hasConflict)
+            return ServiceResult<ReservationDto>.Fail("Room already reserved.");
+        
+        //All good
+        var reservation = new Reservation
+        {
+            Id = id,
+            Title = dto.Title,
+            StartTime = dto.StartTime,
+            EndTime = dto.EndTime,
+            RoomId = dto.RoomId,
+            UserId = dto.UserId,
+            CreatedAt = DateTime.UtcNow,
+            User = user,
+            Room = room
+        };
+
+        _context.Reservations.Update(reservation);
+        await _context.SaveChangesAsync();
+
+        return ServiceResult<ReservationDto>.Ok(MapToDto(reservation));
+    }
     public async Task<bool> DeleteAsync(int id)
     {
         var reservation = await _context.Reservations.FindAsync(id);
