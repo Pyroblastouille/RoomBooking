@@ -8,13 +8,13 @@ using RoomBooking.Api.Common;
 /// Endpoint : /api/reservations
 /// </summary>
 [ApiController]
-[Route("api/reservations")]
-public class UserController : ControllerBase
+[Route("api/[controller]")]
+public class ReservationsController : ControllerBase
 {
     private readonly IReservationService _reservationService;
     private readonly IHttpResponseHandler _responseHandler;
 
-    public UserController(IReservationService reservationService, IHttpResponseHandler responseHandler)
+    public ReservationsController(IReservationService reservationService, IHttpResponseHandler responseHandler)
     {
         _reservationService = reservationService;
         _responseHandler = responseHandler;

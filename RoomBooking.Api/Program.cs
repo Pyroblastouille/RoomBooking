@@ -8,8 +8,30 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
+    {
+        Title = "Room Booking API",
+        Version = "v1",
+        Description = "API pour la gestion des réservations de salles",
+        Contact = new Microsoft.OpenApi.OpenApiContact
+        {
+            Name = "G. MRT",
+            Email = "contact@pyroblastouille.com"
+        }
+    });
+});
 
+builder.Services.AddCors(options =>
+{
+   options.AddPolicy("AllowAll", policy =>
+   {
+       policy.AllowAnyOrigin()
+             .AllowAnyMethod()
+             .AllowAnyHeader();
+   });
+});
 
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -33,6 +55,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowAll");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
