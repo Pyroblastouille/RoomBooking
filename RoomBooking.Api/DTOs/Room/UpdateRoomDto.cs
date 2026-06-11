@@ -12,6 +12,8 @@ public class UpdateRoomDto
     [Range(1, 1000, ErrorMessage = "Capacity must be between 1 and 1000.")]
     public int Capacity { get; set; }
 
-    [MaxLength(200)]
+    public bool IsActive {get; set;}
+
+    [MaxLength(300)]
     public string? Description { get; set; }
 }

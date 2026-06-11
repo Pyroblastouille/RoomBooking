@@ -7,8 +7,8 @@ public class CreateReservationDto
 {
 
     [Required(ErrorMessage = "Title required")]
-    [MaxLength(300)]
-    public string? Purpose { get; set; }
+    [MaxLength(150)]
+    public string Title { get; set; } = string.Empty;
     
 
     [Required(ErrorMessage = "Start Time required.")]
@@ -16,7 +16,7 @@ public class CreateReservationDto
 
     [Required(ErrorMessage = "End Time required.")]
     public DateTime EndTime { get; set; }
-    
+
     [Required(ErrorMessage = "Room Id required")]
     public int RoomId { get; set; }
 

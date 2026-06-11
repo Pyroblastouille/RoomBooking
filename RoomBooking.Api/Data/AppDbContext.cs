@@ -46,7 +46,7 @@ public class AppDbContext : DbContext
             entity.Property(user => user.LastName)
                 .IsRequired()
                 .HasMaxLength(100);
-            entity.Property(user => user.LastName)
+            entity.Property(user => user.FirstName)
                 .IsRequired()
                 .HasMaxLength(100);
             entity.Property(user => user.PasswordHash)
