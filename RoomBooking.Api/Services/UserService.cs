@@ -75,8 +75,9 @@ public class UserService : IUserService
         var user = await _context.Users.FindAsync(id);
         if (user is null) return false;
 
-        _context.Users.Remove(user);
+        Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<User> entry = _context.Users.Remove(user);
         await _context.SaveChangesAsync();
-        return true;
+
+        return entry.State == EntityState.Deleted;
     }
 }

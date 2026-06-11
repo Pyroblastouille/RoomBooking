@@ -90,8 +90,8 @@ public class RoomService : IRoomService
         var room = await _context.Rooms.FindAsync(id);
         if (room is null) return false;
 
-        _context.Rooms.Remove(room);
+        Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<Room> entry = _context.Rooms.Remove(room);
         await _context.SaveChangesAsync();
-        return true;
+        return entry.State == EntityState.Deleted;
     }
 }

@@ -17,9 +17,9 @@ public class CreateReservationDto
     [Required(ErrorMessage = "End Time required.")]
     public DateTime EndTime { get; set; }
 
-    [Required(ErrorMessage = "Room Id required")]
+    [Required(ErrorMessage = "Room required")]
     public int RoomId { get; set; }
 
-    [Required(ErrorMessage = "User Id required.")]
+    [Required(ErrorMessage = "User required.")]
     public int UserId { get; set; }
 }
