@@ -10,14 +10,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//Connexion PostgreSQL -> DbContext
-//Take element "ConnectionStrings > DefaultConnection"
-builder.Services.AddDbContext<AppDbContext>(options => 
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IReservationService, ReservationService>();
+
+builder.Services.AddScoped<IHttpResponseHandler, HttpResponseHandler>();
+
+
+//Connexion PostgreSQL -> DbContext
+//Take element "ConnectionStrings > DefaultConnection"
+builder.Services.AddDbContext<AppDbContext>(options => 
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 

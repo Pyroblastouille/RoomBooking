@@ -36,10 +36,10 @@ public class ReservationService : IReservationService
     {
         //Case Start after End
         if(dto.StartTime >= dto.EndTime)
-            return ServiceResult<ReservationDto>.Fail("Start Time must be before End Time.");
+            return ServiceResult<ReservationDto>.Fail("conflict between start date and end date.");
         //Case Reservation before now
         if(dto.StartTime < DateTime.UtcNow)
-            return ServiceResult<ReservationDto>.Fail("Reservation must not be in the past.");
+            return ServiceResult<ReservationDto>.Fail("conflict between start date and current date.");
         //Case Room exists and active
         var room = await _context.Rooms.FindAsync(dto.RoomId);
         if(room is null)
