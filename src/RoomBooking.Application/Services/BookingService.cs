@@ -77,6 +77,10 @@ public class BookingService : IBookingService {
         }
     }
     public async Task<ServiceResult<BookingDto>> UpdateAsync(int id, UpdateBookingDto dto) {
+        //Case Booking exists
+        var booking = await _bookingRepository.GetByIdAsync(id);
+        if (booking is null)
+            return ServiceResult<BookingDto>.Fail($"Booking with ID {id} does not exist.", 404);
         //Case Start after End
         if (dto.StartTime >= dto.EndTime)
             return ServiceResult<BookingDto>.Fail("conflict between start date and end date.", 409);
@@ -100,18 +104,15 @@ public class BookingService : IBookingService {
             return ServiceResult<BookingDto>.Fail("Room already reserved.", 409);
 
         //All good
-        var booking = new Booking {
-            Title = dto.Title,
-            StartTime = dto.StartTime,
-            EndTime = dto.EndTime,
-            RoomId = dto.RoomId,
-            UserId = dto.UserId,
-            CreatedAt = DateTime.UtcNow,
-            User = user,
-            Room = room
-        };
+        booking.Title = dto.Title;
+        booking.StartTime = dto.StartTime;
+        booking.EndTime = dto.EndTime;
+        booking.RoomId = dto.RoomId;
+        booking.UserId = dto.UserId;
+        booking.User = user;
+        booking.Room = room;
 
-        var success = await _bookingRepository.AddAsync(booking);
+        var success = await _bookingRepository.UpdateAsync(id, booking);
         await _uow.SaveChangesAsync();
         if (success) {
             return ServiceResult<BookingDto>.Ok(MapToDto(booking));
