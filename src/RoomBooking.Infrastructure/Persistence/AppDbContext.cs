@@ -51,6 +51,10 @@ public class AppDbContext : DbContext
                 .HasMaxLength(100);
             entity.Property(user => user.PasswordHash)
                 .IsRequired();
+            entity.Property(user => user.Role)
+                .IsRequired()
+                .HasConversion<string>()
+                .HasMaxLength(20);
         });
 
         //Config Booking

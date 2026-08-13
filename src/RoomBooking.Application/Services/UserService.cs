@@ -8,10 +8,12 @@ namespace RoomBooking.Application.Services;
 public class UserService : IUserService {
     private readonly IRepository<User> _userRepository;
     private readonly IUnitOfWork _uow;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public UserService(IRepository<User> userRepository, IUnitOfWork uow) {
+    public UserService(IRepository<User> userRepository, IUnitOfWork uow, IPasswordHasher passwordHasher) {
         _userRepository = userRepository;
         _uow = uow;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<IEnumerable<UserDto>> GetAllAsync() {
@@ -38,7 +40,7 @@ public class UserService : IUserService {
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             Email = dto.Email,
-            PasswordHash = dto.Password,      //TODO Add Hash ??
+            PasswordHash = _passwordHasher.Hash(dto.Password),
             CreatedAt = DateTime.UtcNow       // Géré par le serveur
         };
 
@@ -56,7 +58,7 @@ public class UserService : IUserService {
         user.FirstName = dto.FirstName; 
         user.LastName = dto.LastName;
         user.Email = dto.Email;
-        user.PasswordHash = dto.Password; //TODO Add Hash
+        user.PasswordHash = _passwordHasher.Hash(dto.Password);
 
         var updated = await _userRepository.UpdateAsync(id, user);
         await _uow.SaveChangesAsync();
@@ -80,5 +82,6 @@ public class UserService : IUserService {
         LastName = user.LastName,
         CreatedAt = user.CreatedAt,
         Email = user.Email,
+        Role = user.Role,
     };
 }

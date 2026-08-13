@@ -28,7 +28,7 @@ public class HttpResponseHandler : ControllerBase, IHttpResponseHandler
 
     public IActionResult HandleFailure<T>(ServiceResult<T> result,int code = 0)
     {
-        if (code < 400 && code >= 500) 
+        if (code < 400 || code >= 500)
             code = DetermineStatusCode(result.ErrorMessage is null ? "" : result.ErrorMessage);
         return StatusCode(code, new
         {
