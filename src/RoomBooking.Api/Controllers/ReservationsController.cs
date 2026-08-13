@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RoomBooking.Application.DTOs.Bookings;
 using RoomBooking.Application.Common;
@@ -12,6 +14,7 @@ namespace RoomBooking.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class BookingsController : ControllerBase
 {
     private readonly IBookingService _bookingService;
@@ -22,6 +25,9 @@ public class BookingsController : ControllerBase
         _bookingService = bookingService;
         _responseHandler = responseHandler;
     }
+
+    private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    private bool IsAdmin => User.IsInRole("Admin");
 
 
 /// <summary>
@@ -37,6 +43,9 @@ public class BookingsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CreateAsync([FromBody] CreateBookingDto dto)
     {
+        if (!IsAdmin)
+            dto.UserId = CurrentUserId;
+
         var result = await _bookingService.CreateAsync(dto);
 
         if (!result.Success || result.Data is null)
@@ -85,6 +94,22 @@ public class BookingsController : ControllerBase
         [FromRoute] int id,
         [FromBody] UpdateBookingDto dto)
     {
+        var existing = await _bookingService.GetByIdAsync(id);
+        if (existing is null)
+        {
+            var notFound = ServiceResult<BookingDto>.Fail($"Booking with ID {id} does not exist.", 404);
+            return _responseHandler.HandleFailure(notFound, 404);
+        }
+
+        if (!IsAdmin && existing.UserId != CurrentUserId)
+        {
+            var forbidden = ServiceResult<BookingDto>.Fail("You can only modify your own bookings.", 403);
+            return _responseHandler.HandleFailure(forbidden, 403);
+        }
+
+        if (!IsAdmin)
+            dto.UserId = CurrentUserId;
+
         //try to update
         var result = await _bookingService.UpdateAsync(id, dto);
 
@@ -101,6 +126,19 @@ public class BookingsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAsync([FromRoute] int id)
     {
+        var existing = await _bookingService.GetByIdAsync(id);
+        if (existing is null)
+        {
+            var notFound = ServiceResult<object>.Fail($"Booking with ID {id} does not exist.", 404);
+            return _responseHandler.HandleFailure(notFound, 404);
+        }
+
+        if (!IsAdmin && existing.UserId != CurrentUserId)
+        {
+            var forbidden = ServiceResult<object>.Fail("You can only delete your own bookings.", 403);
+            return _responseHandler.HandleFailure(forbidden, 403);
+        }
+
         var success = await _bookingService.DeleteAsync(id);
 
         if (!success)

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RoomBooking.Application.DTOs.Users;
 using RoomBooking.Application.Common;
@@ -8,10 +9,12 @@ using RoomBooking.Application.DTOs.Rooms;
 namespace RoomBooking.Api.Controllers;
 
 /// <summary>
-/// Controller pour la gestion des Users
+/// Controller pour la gestion des Users (réservé aux administrateurs).
+/// L'inscription libre-service se fait via /api/auth/register.
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Admin")]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;

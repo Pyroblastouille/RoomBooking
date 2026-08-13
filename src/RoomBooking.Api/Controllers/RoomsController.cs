@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RoomBooking.Application.DTOs.Rooms;
 using RoomBooking.Application.Common;
@@ -11,6 +12,7 @@ namespace RoomBooking.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class RoomsController : ControllerBase
 {
     private readonly IRoomService _roomService;
@@ -27,6 +29,7 @@ public class RoomsController : ControllerBase
     /// Récupère toutes les rooms
     /// </summary>
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync()
     {
@@ -40,6 +43,7 @@ public class RoomsController : ControllerBase
     /// Récupère une room par ID
     /// </summary>
     [HttpGet("{id:int}")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
@@ -60,6 +64,7 @@ public class RoomsController : ControllerBase
     /// Crée une nouvelle room
     /// </summary>
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateAsync([FromBody] CreateRoomDto createRoomDto)
@@ -78,6 +83,7 @@ public class RoomsController : ControllerBase
     /// Supprime une room
     /// </summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
